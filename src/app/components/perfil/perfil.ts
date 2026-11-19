@@ -1,9 +1,13 @@
 import { Component, inject } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
+
 
 import { AuthService } from '../../services/auth';
 import { UsuarioService } from '../../services/usuario';
@@ -41,6 +45,28 @@ export class Perfil {
     ]
   });
 
+  mensajeExitoPassword = '';
+  mensajeErrorPassword = '';
+
+  passwordForm = this.fb.group(
+    {
+      passwordActual: ['', [Validators.required]],
+      nuevaPassword: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(18),
+          passwordSeguraValidator()
+        ]
+      ],
+      repetirPassword: ['', [Validators.required]]
+    },
+    {
+      validators: [passwordsIgualesValidator()]
+    }
+  );
+
   campoInvalido(nombreCampo: string): boolean {
     const control = this.perfilForm.get(nombreCampo);
 
@@ -73,4 +99,70 @@ export class Perfil {
       }
     });
   }
+
+
+  campoPasswordInvalido(nombreCampo: string): boolean {
+    const control = this.passwordForm.get(nombreCampo);
+
+    return !!(
+      control &&
+      control.invalid &&
+      (control.touched || control.dirty)
+    );
+  }
+
+  cambiarPassword(): void {
+    this.mensajeExitoPassword = '';
+    this.mensajeErrorPassword = '';
+
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
+
+    const valores = this.passwordForm.getRawValue();
+
+    this.authService.cambiarPassword(
+      valores.passwordActual ?? '',
+      valores.nuevaPassword ?? ''
+    ).subscribe({
+      next: () => {
+        this.mensajeExitoPassword = 'Contraseña actualizada correctamente.';
+        this.passwordForm.reset();
+      },
+      error: (err) => {
+        this.mensajeErrorPassword = err.message;
+      }
+    });
+  }
+
 }
+
+
+function passwordSeguraValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const valor = control.value || '';
+
+    if (!valor) return null;
+
+    const tieneMayuscula = /[A-Z]/.test(valor);
+    const tieneNumero = /\d/.test(valor);
+    const tieneEspecial = /[!@#$%&*._-]/.test(valor);
+
+    return tieneMayuscula && tieneNumero && tieneEspecial
+      ? null
+      : { passwordSegura: true };
+  };
+}
+
+function passwordsIgualesValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const nuevaPassword = control.get('nuevaPassword')?.value;
+    const repetirPassword = control.get('repetirPassword')?.value;
+
+    return nuevaPassword === repetirPassword
+      ? null
+      : { passwordsDistintas: true };
+  };
+}
+

@@ -1,65 +1,198 @@
-<div class="d-flex">
+<div class="d-flex flex-column flex-md-row perfil-layout">
 
   <app-sidebar></app-sidebar>
 
-  <main class="flex-grow-1 min-w-0">
+  <main class="flex-grow-1 min-w-0 perfil-main">
 
-    <h2>Mi perfil</h2>
+    <div class="container-fluid perfil-container">
 
-    @if (usuario) {
+      <header class="perfil-header mb-4">
+        <h2 class="fw-bold mb-2">Mi perfil</h2>
+        <p class="text-muted mb-0">
+          Consulta y actualiza tus datos personales.
+        </p>
+      </header>
 
-    <p>
-      <strong>Rol:</strong> {{ usuario.rol }}
-    </p>
+      @if (usuario) {
 
-    <form [formGroup]="perfilForm" (ngSubmit)="guardarCambios()">
+      <div class="card perfil-card shadow-sm">
+        <div class="card-body p-4">
 
-      <div>
-        <label for="nombre">Nombre</label>
-        <input id="nombre" type="text" formControlName="nombre" />
+          <div class="perfil-info mb-4">
+            <h3 class="h5 mb-3">Información de la cuenta</h3>
 
-        @if (campoInvalido('nombre')) {
-        <p>El nombre debe tener al menos 3 caracteres.</p>
-        }
+            <p class="mb-0">
+              <strong>Rol:</strong>
+              <span class="perfil-rol">
+                {{ usuario.rol }}
+              </span>
+            </p>
+          </div>
+
+          <form [formGroup]="perfilForm" (ngSubmit)="guardarCambios()">
+
+            <div class="mb-3">
+              <label for="nombre" class="form-label">
+                Nombre
+              </label>
+
+              <input id="nombre" type="text" class="form-control" formControlName="nombre" />
+
+              @if (campoInvalido('nombre')) {
+              <p class="text-danger small mt-1">
+                El nombre debe tener al menos 3 caracteres.
+              </p>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="nickname" class="form-label">
+                Nickname
+              </label>
+
+              <input id="nickname" type="text" class="form-control" formControlName="nickname" />
+
+              @if (campoInvalido('nickname')) {
+              <p class="text-danger small mt-1">
+                El nickname debe tener al menos 3 caracteres.
+              </p>
+              }
+            </div>
+
+            <div class="mb-4">
+              <label for="correo" class="form-label">
+                Correo electrónico
+              </label>
+
+              <input id="correo" type="email" class="form-control" formControlName="correo" />
+
+              @if (campoInvalido('correo')) {
+              <p class="text-danger small mt-1">
+                Ingresa un correo electrónico válido.
+              </p>
+              }
+            </div>
+
+            @if (mensajeError) {
+            <div class="alert alert-danger" role="alert">
+              {{ mensajeError }}
+            </div>
+            }
+
+            @if (mensajeExito) {
+            <div class="alert alert-success" role="status">
+              {{ mensajeExito }}
+            </div>
+            }
+
+            <button type="submit" class="btn btn-primary" [disabled]="perfilForm.invalid">
+              Guardar cambios
+            </button>
+
+          </form>
+
+        </div>
+      </div>
+      
+      <div class="card perfil-card shadow-sm mt-4">
+        <div class="card-body p-4">
+
+          <div class="perfil-info mb-4">
+            <h3 class="h5 mb-2">Cambiar contraseña</h3>
+
+            <p class="text-muted mb-0">
+              Actualiza la contraseña de acceso a tu cuenta.
+            </p>
+          </div>
+
+          <form [formGroup]="passwordForm" (ngSubmit)="cambiarPassword()">
+
+            <div class="mb-3">
+              <label for="passwordActual" class="form-label">
+                Contraseña actual
+              </label>
+
+              <input id="passwordActual" type="password" class="form-control" formControlName="passwordActual"
+                autocomplete="current-password" />
+
+              @if (campoPasswordInvalido('passwordActual')) {
+              <p class="text-danger small mt-1 mb-0">
+                Ingresa tu contraseña actual.
+              </p>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="nuevaPassword" class="form-label">
+                Nueva contraseña
+              </label>
+
+              <input id="nuevaPassword" type="password" class="form-control" formControlName="nuevaPassword"
+                autocomplete="new-password" />
+
+              @if (campoPasswordInvalido('nuevaPassword')) {
+              <p class="text-danger small mt-1 mb-0">
+                La contraseña debe tener entre 6 y 18 caracteres,
+                una mayúscula, un número y un carácter especial
+                (!@#$%&amp;*._-).
+              </p>
+              }
+            </div>
+
+            <div class="mb-4">
+              <label for="repetirPassword" class="form-label">
+                Confirmar nueva contraseña
+              </label>
+
+              <input id="repetirPassword" type="password" class="form-control" formControlName="repetirPassword"
+                autocomplete="new-password" />
+
+              @if (campoPasswordInvalido('repetirPassword')) {
+              <p class="text-danger small mt-1 mb-0">
+                Confirma tu nueva contraseña.
+              </p>
+              }
+
+              @if (
+              passwordForm.hasError('passwordsDistintas') &&
+              passwordForm.get('repetirPassword')?.touched
+              ) {
+              <p class="text-danger small mt-1 mb-0">
+                Las contraseñas no coinciden.
+              </p>
+              }
+            </div>
+
+            @if (mensajeErrorPassword) {
+            <div class="alert alert-danger" role="alert">
+              {{ mensajeErrorPassword }}
+            </div>
+            }
+
+            @if (mensajeExitoPassword) {
+            <div class="alert alert-success" role="status">
+              {{ mensajeExitoPassword }}
+            </div>
+            }
+
+            <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid">
+              Cambiar contraseña
+            </button>
+
+          </form>
+
+        </div>
       </div>
 
-      <div>
-        <label for="nickname">Nickname</label>
-        <input id="nickname" type="text" formControlName="nickname" />
+      } @else {
 
-        @if (campoInvalido('nickname')) {
-        <p>El nickname debe tener al menos 3 caracteres.</p>
-        }
+      <div class="alert alert-info" role="alert">
+        Debes iniciar sesión para consultar tu perfil.
       </div>
 
-      <div>
-        <label for="correo">Correo electrónico</label>
-        <input id="correo" type="email" formControlName="correo" />
-
-        @if (campoInvalido('correo')) {
-        <p>Ingresa un correo electrónico válido.</p>
-        }
-      </div>
-
-      @if (mensajeError) {
-      <p>{{ mensajeError }}</p>
       }
 
-      @if (mensajeExito) {
-      <p>{{ mensajeExito }}</p>
-      }
-
-      <button type="submit" [disabled]="perfilForm.invalid">
-        Guardar cambios
-      </button>
-
-    </form>
-
-    } @else {
-
-    <p>Debes iniciar sesión para consultar tu perfil.</p>
-
-    }
+    </div>
 
   </main>
 

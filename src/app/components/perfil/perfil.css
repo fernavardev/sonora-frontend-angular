@@ -1,0 +1,90 @@
+.perfil-layout {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.perfil-main {
+  min-width: 0;
+  padding: 32px;
+}
+
+.perfil-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Encabezado */
+
+.perfil-header {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 20px;
+}
+
+.perfil-header h2 {
+  color: #174d8c;
+}
+
+/* Tarjeta del perfil */
+
+.perfil-card {
+  max-width: 650px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.perfil-info {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.perfil-info h3 {
+  color: #174d8c;
+  font-weight: 600;
+}
+
+.perfil-rol {
+  display: inline-block;
+  background-color: #e3edf8;
+  color: #174d8c;
+  padding: 4px 10px;
+  margin-left: 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Formularios Bootstrap */
+
+.perfil-card .form-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.perfil-card .form-control:focus {
+  border-color: #174d8c;
+  box-shadow: 0 0 0 0.2rem rgba(23, 77, 140, 0.15);
+}
+
+.perfil-card .btn-primary {
+  background-color: #174d8c;
+  border-color: #174d8c;
+  padding: 10px 20px;
+  font-weight: 600;
+}
+
+.perfil-card .btn-primary:hover {
+  background-color: #103b6d;
+  border-color: #103b6d;
+}
+
+/* Adaptación a pantallas pequeñas */
+
+@media (max-width: 768px) {
+  .perfil-main {
+    padding: 20px 12px;
+  }
+
+  .perfil-card .card-body {
+    padding: 20px !important;
+  }
+}

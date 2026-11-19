@@ -1,59 +1,129 @@
-<div class="d-flex">
+<div class="d-flex flex-column flex-md-row publicacion-layout">
 
   <app-sidebar></app-sidebar>
 
-  <main class="flex-grow-1 min-w-0">
+  <main class="flex-grow-1 min-w-0 publicacion-main">
 
-    <h2>{{ modoEdicion ? 'Editar publicación' : 'Crear publicación' }}</h2>
+    <div class="container-fluid publicacion-container">
 
-    <p>Comparte una pregunta o conversación con la comunidad Sonora.</p>
+      <header class="publicacion-header mb-4">
 
-    <form [formGroup]="publicacionForm" (ngSubmit)="crearPublicacion()">
+        <h2 class="fw-bold mb-2">
+          {{ modoEdicion ? 'Editar publicación' : 'Crear publicación' }}
+        </h2>
 
-      <div>
-        <label for="titulo">Título</label>
-        <input id="titulo" type="text" formControlName="titulo" />
+        <p class="text-muted mb-0">
+          Comparte una pregunta o conversación con la comunidad Sonora.
+        </p>
 
-        @if (campoInvalido('titulo')) {
-        <p>El título debe tener al menos 5 caracteres.</p>
-        }
+      </header>
+
+      <div class="card publicacion-card shadow-sm">
+
+        <div class="card-body p-4">
+
+          <form
+            [formGroup]="publicacionForm"
+            (ngSubmit)="crearPublicacion()"
+          >
+
+            <div class="mb-3">
+
+              <label for="titulo" class="form-label">
+                Título
+              </label>
+
+              <input
+                id="titulo"
+                type="text"
+                class="form-control"
+                formControlName="titulo"
+                placeholder="Escribe el título de tu publicación"
+              />
+
+              @if (campoInvalido('titulo')) {
+                <p class="text-danger small mt-1 mb-0">
+                  El título debe tener al menos 5 caracteres.
+                </p>
+              }
+
+            </div>
+
+            <div class="mb-3">
+
+              <label for="categoria" class="form-label">
+                Categoría
+              </label>
+
+              <select
+                id="categoria"
+                class="form-select"
+                formControlName="categoriaId"
+              >
+
+                <option [ngValue]="0">
+                  Selecciona una categoría
+                </option>
+
+                @for (categoria of categorias; track categoria.id) {
+                  <option [ngValue]="categoria.id">
+                    {{ categoria.nombre }}
+                  </option>
+                }
+
+              </select>
+
+              @if (campoInvalido('categoriaId')) {
+                <p class="text-danger small mt-1 mb-0">
+                  Debes seleccionar una categoría.
+                </p>
+              }
+
+            </div>
+
+            <div class="mb-4">
+
+              <label for="contenido" class="form-label">
+                Contenido
+              </label>
+
+              <textarea
+                id="contenido"
+                class="form-control"
+                rows="6"
+                formControlName="contenido"
+                placeholder="Escribe aquí tu pregunta o conversación..."
+              ></textarea>
+
+              @if (campoInvalido('contenido')) {
+                <p class="text-danger small mt-1 mb-0">
+                  El contenido debe tener al menos 10 caracteres.
+                </p>
+              }
+
+            </div>
+
+            @if (mensajeError) {
+              <div class="alert alert-danger" role="alert">
+                {{ mensajeError }}
+              </div>
+            }
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="publicacionForm.invalid"
+            >
+              {{ modoEdicion ? 'Guardar cambios' : 'Publicar' }}
+            </button>
+
+          </form>
+
+        </div>
+
       </div>
 
-      <div>
-        <label for="categoria">Categoría</label>
-        <select id="categoria" formControlName="categoriaId">
-          <option [ngValue]="0">Selecciona una categoría</option>
-
-          @for (categoria of categorias; track categoria.id) {
-          <option [ngValue]="categoria.id">
-            {{ categoria.nombre }}
-          </option>
-          }
-        </select>
-
-        @if (campoInvalido('categoriaId')) {
-        <p>Debes seleccionar una categoría.</p>
-        }
-      </div>
-
-      <div>
-        <label for="contenido">Contenido</label>
-        <textarea id="contenido" rows="6" formControlName="contenido"></textarea>
-
-        @if (campoInvalido('contenido')) {
-        <p>El contenido debe tener al menos 10 caracteres.</p>
-        }
-      </div>
-
-      @if (mensajeError) {
-      <p>{{ mensajeError }}</p>
-      }
-
-      <button type="submit" [disabled]="publicacionForm.invalid">
-        {{ modoEdicion ? 'Guardar cambios' : 'Publicar' }}
-      </button>
-
-    </form>
+    </div>
 
   </main>
 

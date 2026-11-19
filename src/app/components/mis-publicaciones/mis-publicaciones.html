@@ -1,63 +1,88 @@
-<div class="d-flex">
+<div class="d-flex flex-column flex-md-row mis-publicaciones-layout">
 
-    <app-sidebar></app-sidebar>
+  <app-sidebar></app-sidebar>
 
-    <main class="flex-grow-1 min-w-0">
-        <div class="container mt-4">
+  <main class="flex-grow-1 min-w-0 mis-publicaciones-main">
 
-            <h2>Mis publicaciones</h2>
+    <div class="container-fluid mis-publicaciones-container">
 
-            <p class="text-muted mb-4">
-                Aquí puedes consultar y administrar tus publicaciones.
-            </p>
+      <header class="mis-publicaciones-header mb-4">
 
-            @if (mensajeError) {
-            <div class="alert alert-danger" role="alert">
-                {{ mensajeError }}
-            </div>
-            }
+        <h2 class="fw-bold mb-2">
+          Mis publicaciones
+        </h2>
 
-            @if (!mensajeError && publicaciones.length === 0) {
-            <p class="text-muted">
-                Todavía no has creado publicaciones.
-            </p>
-            }
+        <p class="text-muted mb-0">
+          Aquí puedes consultar y administrar tus publicaciones.
+        </p>
 
-            @for (publicacion of publicaciones; track publicacion.id) {
-            <article class="card mb-3">
-                <div class="card-body">
+      </header>
 
-                    <h4 class="card-title">
-                        {{ publicacion.titulo }}
-                    </h4>
-
-                    <p class="text-muted">
-                        Categoría: {{ publicacion.categoria.nombre }}
-                    </p>
-
-                    <p class="card-text">
-                        {{ publicacion.contenido }}
-                    </p>
-
-                    <div class="d-flex gap-2 mt-3">
-
-                        <a class="btn btn-outline-primary btn-sm"
-                            [routerLink]="['/editar-publicacion', publicacion.id]">
-                            Editar
-                        </a>
-
-                        <button type="button" class="btn btn-outline-danger btn-sm"
-                            (click)="eliminarPublicacion(publicacion)">
-                            Eliminar
-                        </button>
-
-                    </div>
-
-                </div>
-            </article>
-            }
-
+      @if (mensajeError) {
+        <div class="alert alert-danger" role="alert">
+          {{ mensajeError }}
         </div>
-    </main>
+      }
+
+      @if (!mensajeError && publicaciones.length === 0) {
+        <p class="text-muted">
+          Todavía no has creado publicaciones.
+        </p>
+      }
+
+      <section class="publicaciones-lista">
+
+        @for (publicacion of publicaciones; track publicacion.id) {
+
+          <article class="card publicacion-card mb-3">
+
+            <div class="card-body p-4">
+
+              <h4 class="publicacion-titulo">
+                {{ publicacion.titulo }}
+              </h4>
+
+              <div class="publicacion-meta mb-3">
+
+                <span class="publicacion-categoria">
+                  {{ publicacion.categoria.nombre }}
+                </span>
+
+              </div>
+
+              <p class="publicacion-contenido">
+                {{ publicacion.contenido }}
+              </p>
+
+              <div class="publicacion-acciones d-flex gap-2 flex-wrap mt-3">
+
+                <a
+                  class="btn btn-outline-primary btn-sm"
+                  [routerLink]="['/editar-publicacion', publicacion.id]"
+                >
+                  Editar
+                </a>
+
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  (click)="eliminarPublicacion(publicacion)"
+                >
+                  Eliminar
+                </button>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        }
+
+      </section>
+
+    </div>
+
+  </main>
 
 </div>

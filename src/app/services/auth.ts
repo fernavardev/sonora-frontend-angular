@@ -144,6 +144,54 @@ export class AuthService {
     return of(true);
   }
 
+  cambiarPassword(
+    passwordActual: string,
+    nuevaPassword: string
+  ): Observable<boolean> {
+
+    if (!this.usuarioActual) {
+      return throwError(() => new Error('Debes iniciar sesión.'));
+    }
+
+    const credencial = this.credenciales.find(
+      item =>
+        item.correo.toLowerCase() ===
+        this.usuarioActual!.correo.toLowerCase()
+    );
+
+    if (!credencial) {
+      return throwError(() => new Error('Credenciales no encontradas.'));
+    }
+
+    if (credencial.password !== passwordActual) {
+      return throwError(() => new Error('La contraseña actual es incorrecta.'));
+    }
+
+    if (passwordActual === nuevaPassword) {
+      return throwError(() => new Error(
+        'La nueva contraseña debe ser diferente a la actual.'
+      ));
+    }
+
+    const passwordValida =
+      nuevaPassword.length >= 6 &&
+      nuevaPassword.length <= 18 &&
+      /[A-Z]/.test(nuevaPassword) &&
+      /\d/.test(nuevaPassword) &&
+      /[!@#$%&*._-]/.test(nuevaPassword);
+
+    if (!passwordValida) {
+      return throwError(() => new Error(
+        'La nueva contraseña no cumple los requisitos de seguridad.'
+      ));
+    }
+
+    credencial.password = nuevaPassword;
+    this.guardarCredenciales();
+
+    return of(true);
+  }
+
   actualizarSesion(usuarioActualizado: Usuario): void {
     const correoAnterior = this.usuarioActual?.correo;
 

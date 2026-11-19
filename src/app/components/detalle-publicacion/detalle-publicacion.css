@@ -1,0 +1,137 @@
+.detalle-layout {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.detalle-main {
+  min-width: 0;
+  padding: 32px;
+}
+
+.detalle-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Publicación principal */
+
+.detalle-publicacion-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.detalle-titulo {
+  color: #174d8c;
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  overflow-wrap: anywhere;
+}
+
+.detalle-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.detalle-categoria {
+  background-color: #e3edf8;
+  color: #174d8c;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.detalle-separador {
+  border-color: #e2e8f0;
+  opacity: 1;
+  margin: 20px 0;
+}
+
+.detalle-contenido {
+  color: #495057;
+  line-height: 1.7;
+  margin-bottom: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Comentarios */
+
+.comentarios-titulo {
+  color: #174d8c;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.comentario-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.comentario-autor {
+  color: #174d8c;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.comentario-contenido {
+  color: #495057;
+  line-height: 1.6;
+  margin-bottom: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Formulario de nuevo comentario */
+
+.nuevo-comentario-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #f8fafc;
+}
+
+.nuevo-comentario-titulo {
+  color: #174d8c;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Controles Bootstrap */
+
+.detalle-main .btn-primary {
+  background-color: #174d8c;
+  border-color: #174d8c;
+}
+
+.detalle-main .btn-primary:hover {
+  background-color: #103b6d;
+  border-color: #103b6d;
+}
+
+.detalle-main .form-control:focus {
+  border-color: #174d8c;
+  box-shadow: 0 0 0 0.2rem rgba(23, 77, 140, 0.15);
+}
+
+/* Adaptación a pantallas pequeñas */
+
+@media (max-width: 768px) {
+  .detalle-main {
+    padding: 20px 12px;
+  }
+
+  .detalle-titulo {
+    font-size: 1.35rem;
+  }
+
+  .detalle-publicacion-card .card-body,
+  .nuevo-comentario-card .card-body {
+    padding: 20px !important;
+  }
+}

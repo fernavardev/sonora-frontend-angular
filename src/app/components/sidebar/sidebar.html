@@ -1,44 +1,67 @@
 <aside class="sidebar bg-light border-end p-3 d-flex flex-column">
 
-  <h5 class="fw-bold mb-4">
-    SONORA
-  </h5>
+  <div class="sidebar-brand mb-4">
+    <h5 class="fw-bold mb-1">SONORA</h5>
+    <span class="sidebar-subtitle">Comunidad musical</span>
+  </div>
 
   <nav class="nav flex-column gap-2">
 
-    <a routerLink="/publicaciones" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link text-dark rounded">
+    <a
+      routerLink="/publicaciones"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-link rounded"
+    >
       🏠 Home
     </a>
 
-    <a routerLink="/categorias" routerLinkActive="active" class="nav-link text-dark rounded">
+    <a
+      routerLink="/categorias"
+      routerLinkActive="active"
+      class="nav-link rounded"
+    >
       📂 Categorías
     </a>
 
     <hr class="my-2">
 
-    <a routerLink="/mis-publicaciones" routerLinkActive="active" class="nav-link text-dark rounded">
+    <a
+      routerLink="/mis-publicaciones"
+      routerLinkActive="active"
+      class="nav-link rounded"
+    >
       📄 Mis publicaciones
     </a>
 
-    <a routerLink="/crear-publicacion" routerLinkActive="active" class="nav-link text-dark rounded">
+    <a
+      routerLink="/crear-publicacion"
+      routerLinkActive="active"
+      class="nav-link rounded"
+    >
       ➕ Crear publicación
     </a>
 
     <hr class="my-2">
 
-    <a routerLink="/perfil" routerLinkActive="active" class="nav-link text-dark rounded">
+    <a
+      routerLink="/perfil"
+      routerLinkActive="active"
+      class="nav-link rounded"
+    >
       👤 Mi perfil
     </a>
 
   </nav>
 
   <div class="mt-auto pt-4 border-top">
-
-    <button type="button" class="btn btn-outline-danger w-100" (click)="cerrarSesion()">
+    <button
+      type="button"
+      class="btn btn-outline-danger w-100"
+      (click)="cerrarSesion()"
+    >
       🚪 Cerrar sesión
     </button>
-
   </div>
 
 </aside>

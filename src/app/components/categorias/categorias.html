@@ -1,16 +1,18 @@
-<div class="d-flex">
+<div class="d-flex flex-column flex-md-row categorias-layout">
 
   <app-sidebar></app-sidebar>
 
-  <main class="flex-grow-1 min-w-0">
+  <main class="flex-grow-1 min-w-0 categorias-main">
 
-    <div class="container mt-4">
+    <div class="container-fluid categorias-container">
 
-      <h2>Categorías</h2>
+      <header class="categorias-header mb-4">
+        <h2 class="fw-bold mb-2">Categorías</h2>
 
-      <p class="text-muted mb-4">
-        Explora las publicaciones según tus intereses musicales.
-      </p>
+        <p class="text-muted mb-0">
+          Explora las publicaciones según tus intereses musicales.
+        </p>
+      </header>
 
       <div class="row g-3">
 
@@ -21,15 +23,16 @@
             <a
               [routerLink]="['/publicaciones']"
               [queryParams]="{ categoria: categoria.id }"
-              class="card h-100 text-decoration-none text-dark">
+              class="card categoria-card h-100 text-decoration-none"
+            >
 
-              <div class="card-body">
+              <div class="card-body p-4">
 
-                <h5 class="card-title">
+                <h5 class="categoria-titulo">
                   {{ categoria.nombre }}
                 </h5>
 
-                <p class="card-text text-muted">
+                <p class="categoria-descripcion mb-0">
                   {{ categoria.descripcion }}
                 </p>
 

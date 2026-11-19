@@ -34,7 +34,7 @@ export class Publicaciones implements OnInit {
 
   ngOnInit(): void {
     if (typeof history !== 'undefined') {
-      this.mensajeExito = history.state.mensajeExito ?? '';
+      this.mensajeExito = history.state?.mensajeExito ?? '';
 
       if (this.mensajeExito) {
         const estado = { ...history.state };
@@ -82,9 +82,13 @@ export class Publicaciones implements OnInit {
   filtrarPorCategoria(categoriaId: number): void {
     this.categoriaSeleccionada = categoriaId;
 
+    const publicacionesVisibles = this.publicaciones.filter(
+      publicacion => !publicacion.baneado
+    );
+
     this.publicacionesFiltradas = categoriaId === 0
-      ? this.publicaciones
-      : this.publicaciones.filter(
+      ? publicacionesVisibles
+      : publicacionesVisibles.filter(
         publicacion => publicacion.categoria.id === categoriaId
       );
   }

@@ -9,10 +9,11 @@ import {
 } from '@angular/forms';
 
 import { AuthService } from '../../services/auth';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-recuperar-password',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './recuperar-password.html',
   styleUrl: './recuperar-password.css'
 })
