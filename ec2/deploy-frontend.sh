@@ -13,7 +13,7 @@ if [[ ! "$region" =~ ^[a-z0-9-]+$ ]]; then
 fi
 
 registry="${image%%/*}"
-docker_config="$(mktemp -d /tmp/pet-ecr-docker.XXXXXX)"
+docker_config="$(mktemp -d /tmp/sonora-frontend-ecr-docker.XXXXXX)"
 export DOCKER_CONFIG="$docker_config"
 cleanup_auth() {
   if [[ -n "$docker_config" ]]; then

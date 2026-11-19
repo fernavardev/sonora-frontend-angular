@@ -84,31 +84,10 @@ fi
 if [[ "$component" == frontend ]]; then
   curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 \
     --max-time 10 "http://${public_ip}/" --output /dev/null
-  curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 \
-    --max-time 10 "http://${public_ip}/pets" --output "$RUNNER_TEMP/pets-response.json"
-  python3 - "$RUNNER_TEMP/pets-response.json" <<'PY'
-import json
-import sys
 
-with open(sys.argv[1], encoding="utf-8") as response:
-    pets = json.load(response)
-if not isinstance(pets, list) or len(pets) < 4:
-    raise SystemExit("Public GET /pets did not return at least four demo records.")
-print(f"EC2 smoke tests passed: frontend HTTP 200; API HTTP 200 with {len(pets)} records.")
-PY
+  echo "EC2 smoke test passed: frontend HTTP 200."
   echo "Website: http://${public_ip}/"
 else
-  curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 \
-    --max-time 10 "http://${public_ip}/pets" --output "$RUNNER_TEMP/pets-response.json"
-  python3 - "$RUNNER_TEMP/pets-response.json" <<'PY'
-import json
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as response:
-    pets = json.load(response)
-if not isinstance(pets, list) or len(pets) < 4:
-    raise SystemExit("Public GET /pets did not return at least four demo records.")
-print(f"EC2 smoke test passed: API HTTP 200 with {len(pets)} records.")
-PY
+  echo "API deployment completed. Validate its endpoint separately."
 fi
 
