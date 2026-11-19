@@ -1,0 +1,18 @@
+# Dependencias y compilaciones locales
+node_modules/
+dist/
+.angular/
+
+# Git y configuracion del editor
+.git/
+.github/
+.vscode/
+
+# Archivos locales
+.env
+.env.*
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
