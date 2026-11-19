@@ -1,0 +1,183 @@
+<div class="d-flex">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="flex-grow-1 min-w-0">
+
+    <div class="container mt-4">
+
+      <button type="button" class="btn btn-outline-secondary mb-4" (click)="volver()">
+        Volver a publicaciones
+      </button>
+
+      @if (mensajeError) {
+      <div class="alert alert-danger" role="alert">
+        {{ mensajeError }}
+      </div>
+      }
+
+      @if (publicacion; as publicacionActual) {
+      <article class="card">
+        <div class="card-body">
+
+          <h2 class="card-title">
+            {{ publicacionActual.titulo }}
+          </h2>
+
+          <div class="text-muted mb-3">
+            <span>Publicado por: {{ nicknameAutor }}</span>
+            <span class="mx-2">|</span>
+            <span>
+              Categoría: {{ publicacionActual.categoria.nombre }}
+            </span>
+          </div>
+
+          <hr>
+
+          <p class="card-text">
+            {{ publicacionActual.contenido }}
+          </p>
+
+        </div>
+      </article>
+
+      <section class="mt-4">
+
+        <h3>Comentarios ({{ comentarios.length }})</h3>
+
+        @if (mensajeErrorComentarios) {
+        <div class="alert alert-danger" role="alert">
+          {{ mensajeErrorComentarios }}
+        </div>
+        }
+
+        @if (comentarios.length === 0 && !mensajeErrorComentarios) {
+        <p class="text-muted">
+          Esta publicación todavía no tiene comentarios.
+        </p>
+        }
+
+        @for (comentario of comentarios; track comentario.id) {
+        <div class="card mb-3">
+          <div class="card-body">
+
+            <h5 class="card-title">
+              {{ comentario.nicknameAutor }}
+            </h5>
+
+
+            @if (comentarioEnEdicionId === comentario.id) {
+
+            <form [formGroup]="edicionComentarioForm" (ngSubmit)="guardarEdicionComentario()">
+
+              <div class="mb-3">
+                <label for="contenidoEdicion" class="form-label">
+                  Editar comentario
+                </label>
+
+                <textarea id="contenidoEdicion" class="form-control" rows="3" formControlName="contenido">
+      </textarea>
+
+                @if (
+                edicionComentarioForm.controls.contenido.invalid &&
+                edicionComentarioForm.controls.contenido.touched
+                ) {
+                <div class="text-danger mt-1">
+                  El comentario debe tener al menos 2 caracteres.
+                </div>
+                }
+              </div>
+
+              @if (mensajeErrorEditarComentario) {
+              <div class="alert alert-danger" role="alert">
+                {{ mensajeErrorEditarComentario }}
+              </div>
+              }
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="edicionComentarioForm.invalid">
+                  Guardar cambios
+                </button>
+
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicionComentario()">
+                  Cancelar
+                </button>
+              </div>
+
+            </form>
+
+            } @else {
+
+            <p class="card-text">
+              {{ comentario.contenido }}
+            </p>
+
+            @if (puedeAdministrarComentario(comentario)) {
+            <div class="d-flex gap-2 mt-3">
+
+              <button type="button" class="btn btn-outline-primary btn-sm"
+                (click)="iniciarEdicionComentario(comentario)">
+                Editar
+              </button>
+
+              <button type="button" class="btn btn-outline-danger btn-sm" (click)="eliminarComentario(comentario)">
+                Eliminar
+              </button>
+
+            </div>
+            }
+            }
+
+          </div>
+        </div>
+        }
+
+      </section>
+
+      <div class="card mt-4">
+        <div class="card-body">
+
+          <h4 class="card-title mb-3">Escribir comentario</h4>
+
+          <form [formGroup]="comentarioForm" (ngSubmit)="crearComentario()">
+
+            <div class="mb-3">
+              <label for="contenidoComentario" class="form-label">
+                Tu comentario
+              </label>
+
+              <textarea id="contenidoComentario" class="form-control" rows="4" formControlName="contenido"
+                placeholder="Escribe tu comentario aquí...">
+        </textarea>
+
+              @if (
+              comentarioForm.controls.contenido.invalid &&
+              comentarioForm.controls.contenido.touched
+              ) {
+              <div class="text-danger mt-1">
+                El comentario debe tener al menos 2 caracteres.
+              </div>
+              }
+            </div>
+
+            @if (mensajeErrorCrearComentario) {
+            <div class="alert alert-danger" role="alert">
+              {{ mensajeErrorCrearComentario }}
+            </div>
+            }
+
+            <button type="submit" class="btn btn-primary" [disabled]="comentarioForm.invalid">
+              Publicar comentario
+            </button>
+
+          </form>
+
+        </div>
+      </div>
+      }
+
+    </div>
+
+  </main>
+
+</div>

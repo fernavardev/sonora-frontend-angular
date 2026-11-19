@@ -1,0 +1,70 @@
+<div class="d-flex">
+
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-grow-1 min-w-0">
+        @if (mensajeExito) {
+        <div class="alert alert-success" role="alert">
+            {{ mensajeExito }}
+        </div>
+        }
+
+        <h2>Publicaciones de Sonora</h2>
+
+        <p>Explora las conversaciones de nuestra comunidad musical.</p>
+
+        <div>
+            <label for="categoria">Filtrar por categoría</label>
+
+            <select id="categoria" #selectorCategoria (change)="filtrarPorCategoria(+selectorCategoria.value)">
+                <option value="0">Todas las categorías</option>
+
+                @for (categoria of categorias; track categoria.id) {
+                <option [value]="categoria.id">
+                    {{ categoria.nombre }}
+                </option>
+                }
+            </select>
+        </div>
+
+        @if (mensajeError) {
+        <p>{{ mensajeError }}</p>
+        }
+
+        @if (publicacionesFiltradas.length > 0) {
+
+        @for (publicacion of publicacionesFiltradas; track publicacion.id) {
+
+        @if (!publicacion.baneado) {
+        <article>
+            <a [routerLink]="['/publicaciones', publicacion.id]">
+                <h3>{{ publicacion.titulo }}</h3>
+            </a>
+
+            <p>
+                <strong>Publicado por:</strong>
+                {{ usuarios.get(publicacion.usuarioId) ?? 'Usuario desconocido' }}
+            </p>
+
+            <p>
+                <strong>Categoría:</strong>
+                {{ publicacion.categoria.nombre }}
+            </p>
+
+            <p>{{ publicacion.contenido }}</p>
+
+            <hr />
+        </article>
+        }
+
+        }
+
+        } @else {
+
+        <p>No hay publicaciones en esta categoría.</p>
+
+        }
+
+          </main>
+
+</div>

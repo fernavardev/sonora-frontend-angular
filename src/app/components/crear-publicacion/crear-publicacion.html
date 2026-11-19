@@ -1,0 +1,60 @@
+<div class="d-flex">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="flex-grow-1 min-w-0">
+
+    <h2>{{ modoEdicion ? 'Editar publicación' : 'Crear publicación' }}</h2>
+
+    <p>Comparte una pregunta o conversación con la comunidad Sonora.</p>
+
+    <form [formGroup]="publicacionForm" (ngSubmit)="crearPublicacion()">
+
+      <div>
+        <label for="titulo">Título</label>
+        <input id="titulo" type="text" formControlName="titulo" />
+
+        @if (campoInvalido('titulo')) {
+        <p>El título debe tener al menos 5 caracteres.</p>
+        }
+      </div>
+
+      <div>
+        <label for="categoria">Categoría</label>
+        <select id="categoria" formControlName="categoriaId">
+          <option [ngValue]="0">Selecciona una categoría</option>
+
+          @for (categoria of categorias; track categoria.id) {
+          <option [ngValue]="categoria.id">
+            {{ categoria.nombre }}
+          </option>
+          }
+        </select>
+
+        @if (campoInvalido('categoriaId')) {
+        <p>Debes seleccionar una categoría.</p>
+        }
+      </div>
+
+      <div>
+        <label for="contenido">Contenido</label>
+        <textarea id="contenido" rows="6" formControlName="contenido"></textarea>
+
+        @if (campoInvalido('contenido')) {
+        <p>El contenido debe tener al menos 10 caracteres.</p>
+        }
+      </div>
+
+      @if (mensajeError) {
+      <p>{{ mensajeError }}</p>
+      }
+
+      <button type="submit" [disabled]="publicacionForm.invalid">
+        {{ modoEdicion ? 'Guardar cambios' : 'Publicar' }}
+      </button>
+
+    </form>
+
+  </main>
+
+</div>

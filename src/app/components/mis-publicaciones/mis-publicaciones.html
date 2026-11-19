@@ -1,0 +1,63 @@
+<div class="d-flex">
+
+    <app-sidebar></app-sidebar>
+
+    <main class="flex-grow-1 min-w-0">
+        <div class="container mt-4">
+
+            <h2>Mis publicaciones</h2>
+
+            <p class="text-muted mb-4">
+                Aquí puedes consultar y administrar tus publicaciones.
+            </p>
+
+            @if (mensajeError) {
+            <div class="alert alert-danger" role="alert">
+                {{ mensajeError }}
+            </div>
+            }
+
+            @if (!mensajeError && publicaciones.length === 0) {
+            <p class="text-muted">
+                Todavía no has creado publicaciones.
+            </p>
+            }
+
+            @for (publicacion of publicaciones; track publicacion.id) {
+            <article class="card mb-3">
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        {{ publicacion.titulo }}
+                    </h4>
+
+                    <p class="text-muted">
+                        Categoría: {{ publicacion.categoria.nombre }}
+                    </p>
+
+                    <p class="card-text">
+                        {{ publicacion.contenido }}
+                    </p>
+
+                    <div class="d-flex gap-2 mt-3">
+
+                        <a class="btn btn-outline-primary btn-sm"
+                            [routerLink]="['/editar-publicacion', publicacion.id]">
+                            Editar
+                        </a>
+
+                        <button type="button" class="btn btn-outline-danger btn-sm"
+                            (click)="eliminarPublicacion(publicacion)">
+                            Eliminar
+                        </button>
+
+                    </div>
+
+                </div>
+            </article>
+            }
+
+        </div>
+    </main>
+
+</div>

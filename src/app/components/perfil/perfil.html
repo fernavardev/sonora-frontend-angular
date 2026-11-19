@@ -1,0 +1,66 @@
+<div class="d-flex">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="flex-grow-1 min-w-0">
+
+    <h2>Mi perfil</h2>
+
+    @if (usuario) {
+
+    <p>
+      <strong>Rol:</strong> {{ usuario.rol }}
+    </p>
+
+    <form [formGroup]="perfilForm" (ngSubmit)="guardarCambios()">
+
+      <div>
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre" />
+
+        @if (campoInvalido('nombre')) {
+        <p>El nombre debe tener al menos 3 caracteres.</p>
+        }
+      </div>
+
+      <div>
+        <label for="nickname">Nickname</label>
+        <input id="nickname" type="text" formControlName="nickname" />
+
+        @if (campoInvalido('nickname')) {
+        <p>El nickname debe tener al menos 3 caracteres.</p>
+        }
+      </div>
+
+      <div>
+        <label for="correo">Correo electrónico</label>
+        <input id="correo" type="email" formControlName="correo" />
+
+        @if (campoInvalido('correo')) {
+        <p>Ingresa un correo electrónico válido.</p>
+        }
+      </div>
+
+      @if (mensajeError) {
+      <p>{{ mensajeError }}</p>
+      }
+
+      @if (mensajeExito) {
+      <p>{{ mensajeExito }}</p>
+      }
+
+      <button type="submit" [disabled]="perfilForm.invalid">
+        Guardar cambios
+      </button>
+
+    </form>
+
+    } @else {
+
+    <p>Debes iniciar sesión para consultar tu perfil.</p>
+
+    }
+
+  </main>
+
+</div>

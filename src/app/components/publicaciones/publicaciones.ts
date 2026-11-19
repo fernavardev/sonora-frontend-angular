@@ -1,0 +1,91 @@
+import { Component, OnInit, inject } from '@angular/core';
+
+import { Publicacion } from '../../models/publicacion';
+import { Categoria } from '../../models/categoria';
+import { CATEGORIAS } from '../../data/categorias';
+import { PublicacionService } from '../../services/publicacion';
+import { UsuarioService } from '../../services/usuario';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Sidebar } from '../sidebar/sidebar';
+
+@Component({
+  selector: 'app-publicaciones',
+  imports: [RouterLink, Sidebar],
+  templateUrl: './publicaciones.html',
+  styleUrl: './publicaciones.css'
+})
+export class Publicaciones implements OnInit {
+
+  private publicacionService = inject(PublicacionService);
+
+  private usuarioService = inject(UsuarioService);
+
+  private route = inject(ActivatedRoute);
+
+  usuarios = new Map<number, string>();
+
+  publicaciones: Publicacion[] = [];
+  publicacionesFiltradas: Publicacion[] = [];
+  categorias: Categoria[] = CATEGORIAS;
+
+  categoriaSeleccionada = 0;
+  mensajeError = '';
+  mensajeExito = '';
+
+  ngOnInit(): void {
+    if (typeof history !== 'undefined') {
+      this.mensajeExito = history.state.mensajeExito ?? '';
+
+      if (this.mensajeExito) {
+        const estado = { ...history.state };
+        delete estado.mensajeExito;
+
+        history.replaceState(estado, '');
+      }
+    }
+
+    this.usuarioService.listar().subscribe({
+      next: (usuarios) => {
+        this.usuarios = new Map(
+          usuarios.map(usuario => [usuario.id, usuario.nickname])
+        );
+      }
+    });
+
+    this.cargarPublicaciones();
+
+    this.route.queryParamMap.subscribe(params => {
+      const categoriaId = Number(params.get('categoria'));
+
+      if (Number.isInteger(categoriaId) && categoriaId > 0) {
+        this.categoriaSeleccionada = categoriaId;
+      } else {
+        this.categoriaSeleccionada = 0;
+      }
+
+      this.filtrarPorCategoria(this.categoriaSeleccionada);
+    });
+  }
+
+  cargarPublicaciones(): void {
+    this.publicacionService.listar().subscribe({
+      next: (publicaciones) => {
+        this.publicaciones = publicaciones;
+        this.filtrarPorCategoria(this.categoriaSeleccionada);
+      },
+      error: (err) => {
+        this.mensajeError = err.message;
+      }
+    });
+  }
+
+  filtrarPorCategoria(categoriaId: number): void {
+    this.categoriaSeleccionada = categoriaId;
+
+    this.publicacionesFiltradas = categoriaId === 0
+      ? this.publicaciones
+      : this.publicaciones.filter(
+        publicacion => publicacion.categoria.id === categoriaId
+      );
+  }
+}
