@@ -1,5 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
-
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Publicacion } from '../../models/publicacion';
 import { PublicacionService } from '../../services/publicacion';
 import { AuthService } from '../../services/auth';
@@ -17,6 +16,7 @@ export class MisPublicaciones implements OnInit {
   private publicacionService = inject(PublicacionService);
   private authService = inject(AuthService);
   private comentarioService = inject(ComentarioService);
+  private cdr = inject(ChangeDetectorRef);
 
   publicaciones: Publicacion[] = [];
   mensajeError = '';
@@ -30,6 +30,7 @@ export class MisPublicaciones implements OnInit {
 
     if (!usuario) {
       this.mensajeError = 'Debes iniciar sesión para ver tus publicaciones.';
+      this.cdr.markForCheck();
       return;
     }
 
@@ -42,9 +43,11 @@ export class MisPublicaciones implements OnInit {
         );
 
         this.mensajeError = '';
+        this.cdr.markForCheck();
       },
       error: () => {
         this.mensajeError = 'No fue posible cargar tus publicaciones.';
+        this.cdr.markForCheck();
       }
     });
   }

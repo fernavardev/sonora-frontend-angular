@@ -137,6 +137,7 @@ export class CrearPublicacion implements OnInit {
           }
 
           this.publicacionService.actualizar(this.publicacionId!, {
+            ...publicacion,
             titulo: valores.titulo?.trim() ?? '',
             contenido: valores.contenido?.trim() ?? '',
             categoria

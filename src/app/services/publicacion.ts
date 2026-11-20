@@ -3,6 +3,7 @@ import { Observable, of, throwError } from 'rxjs';
 
 import { Publicacion } from '../models/publicacion';
 import { PUBLICACIONES } from '../data/publicaciones';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -11,62 +12,41 @@ export class PublicacionService {
 
   private publicaciones: Publicacion[] = this.cargarPublicaciones();
 
+  private readonly apiUrl = '/api/publicaciones';
+
+  constructor(private http: HttpClient) { }
+
   listar(): Observable<Publicacion[]> {
-    return of([...this.publicaciones]);
+    return this.http.get<Publicacion[]>(this.apiUrl);
   }
 
   buscarPorId(id: number): Observable<Publicacion | undefined> {
-    return of(this.publicaciones.find(publicacion => publicacion.id === id));
+    return this.http.get<Publicacion>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
   listarPorCategoria(categoriaId: number): Observable<Publicacion[]> {
-    return of(this.publicaciones.filter(
-      publicacion => publicacion.categoria.id === categoriaId
-    ));
+    return this.http.get<Publicacion[]>(
+      `${this.apiUrl}/categoria/${categoriaId}`
+    );
   }
 
   crear(datos: Omit<Publicacion, 'id'>): Observable<Publicacion> {
-    const nuevaPublicacion: Publicacion = {
-      ...datos,
-      id: Math.max(0, ...this.publicaciones.map(p => p.id)) + 1
-    };
-
-    this.publicaciones.push(nuevaPublicacion);
-    this.guardarPublicaciones();
-
-    return of(nuevaPublicacion);
+    return this.http.post<Publicacion>(this.apiUrl, datos);
   }
 
   actualizar(id: number, datos: Partial<Publicacion>): Observable<Publicacion> {
-    const indice = this.publicaciones.findIndex(p => p.id === id);
-
-    if (indice === -1) {
-      return throwError(() => new Error('Publicación no encontrada'));
-    }
-
-    const publicacionActualizada: Publicacion = {
-      ...this.publicaciones[indice],
-      ...datos,
-      id
-    };
-
-    this.publicaciones[indice] = publicacionActualizada;
-    this.guardarPublicaciones();
-
-    return of(publicacionActualizada);
+    return this.http.put<Publicacion>(
+      `${this.apiUrl}/${id}`,
+      datos
+    );
   }
 
   eliminar(id: number): Observable<void> {
-    const indice = this.publicaciones.findIndex(p => p.id === id);
-
-    if (indice === -1) {
-      return throwError(() => new Error('Publicación no encontrada'));
-    }
-
-    this.publicaciones.splice(indice, 1);
-    this.guardarPublicaciones();
-
-    return of(undefined);
+    return this.http.delete<void>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
   private cargarPublicaciones(): Publicacion[] {

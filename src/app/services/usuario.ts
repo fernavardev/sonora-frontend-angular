@@ -1,23 +1,28 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, switchMap, map } from 'rxjs';
 
 import { Usuario } from '../models/usuario';
 import { USUARIOS } from '../data/usuarios';
 import { RegistroRequest } from '../models/registro-request';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuarioService {
 
+  private readonly apiUrl = '/api/usuarios';
+
+  constructor(private http: HttpClient) { }
+
   private usuarios: Usuario[] = this.cargarUsuarios();
 
   listar(): Observable<Usuario[]> {
-    return of(this.usuarios);
+    return this.http.get<Usuario[]>(this.apiUrl);
   }
 
   buscarPorId(id: number): Observable<Usuario | undefined> {
-    return of(this.usuarios.find(usuario => usuario.id === id));
+    return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
   }
 
   buscarPorCorreo(correo: string): Observable<Usuario | undefined> {
@@ -28,57 +33,46 @@ export class UsuarioService {
     );
   }
 
+
   registrar(datos: RegistroRequest): Observable<Usuario> {
-    const correo = datos.correo.trim().toLowerCase();
-
-    if (this.usuarios.some(usuario => usuario.correo.toLowerCase() === correo)) {
-      return throwError(() => new Error('El correo ya está registrado'));
-    }
-
-    const nuevoUsuario: Usuario = {
-      id: Math.max(0, ...this.usuarios.map(usuario => usuario.id)) + 1,
-      nombre: datos.nombre,
-      nickname: datos.nickname,
-      correo,
+    return this.http.post<Usuario>(this.apiUrl, {
+      ...datos,
+      nombre: datos.nombre.trim(),
+      nickname: datos.nickname.trim(),
+      correo: datos.correo.trim().toLowerCase(),
       rol: 'USUARIO'
-    };
-
-    this.usuarios.push(nuevoUsuario);
-
-    this.guardarUsuarios();
-    return of(nuevoUsuario);
+    });
   }
 
   actualizar(id: number, datos: Partial<Usuario>): Observable<Usuario> {
-    const indice = this.usuarios.findIndex(usuario => usuario.id === id);
+    return this.http.get<Usuario>(`${this.apiUrl}/${id}`).pipe(
+      switchMap(usuarioActual => {
+        return this.http.put<Usuario>(`${this.apiUrl}/${id}`, {
+          nombre: (datos.nombre ?? usuarioActual.nombre).trim(),
+          nickname: (datos.nickname ?? usuarioActual.nickname).trim(),
+          correo: (datos.correo ?? usuarioActual.correo).trim().toLowerCase(),
+          rol: usuarioActual.rol
+        });
+      })
+    );
+  }
 
-    if (indice === -1) {
-      return throwError(() => new Error('Usuario no encontrado'));
-    }
+  cambiarPassword(id: number, nuevaPassword: string): Observable<Usuario> {
+    return this.buscarPorId(id).pipe(
+      switchMap(usuario => {
+        if (!usuario) {
+          throw new Error('Usuario no encontrado.');
+        }
 
-    if (datos.correo) {
-      const correo = datos.correo.trim().toLowerCase();
-
-      if (this.usuarios.some(usuario =>
-        usuario.id !== id && usuario.correo.toLowerCase() === correo
-      )) {
-        return throwError(() => new Error('El correo ya está registrado'));
-      }
-    }
-
-    const usuarioActualizado: Usuario = {
-      ...this.usuarios[indice],
-      nombre: datos.nombre ?? this.usuarios[indice].nombre,
-      nickname: datos.nickname ?? this.usuarios[indice].nickname,
-      correo: datos.correo
-        ? datos.correo.trim().toLowerCase()
-        : this.usuarios[indice].correo
-    };
-
-    this.usuarios[indice] = usuarioActualizado;
-    this.guardarUsuarios();
-
-    return of(usuarioActualizado);
+        return this.http.put<Usuario>(`${this.apiUrl}/${id}`, {
+          nombre: usuario.nombre,
+          nickname: usuario.nickname,
+          correo: usuario.correo,
+          rol: usuario.rol,
+          password: nuevaPassword
+        });
+      })
+    );
   }
 
   private cargarUsuarios(): Usuario[] {
@@ -96,4 +90,21 @@ export class UsuarioService {
       localStorage.setItem('sonora_usuarios', JSON.stringify(this.usuarios));
     }
   }
+
+  nicknameDisponible(
+    nickname: string,
+    usuarioId?: number
+  ): Observable<boolean> {
+    const nicknameNormalizado = nickname.trim().toLowerCase();
+
+    return this.listar().pipe(
+      map(usuarios =>
+        !usuarios.some(usuario =>
+          usuario.nickname.trim().toLowerCase() === nicknameNormalizado &&
+          usuario.id !== usuarioId
+        )
+      )
+    );
+  }
+
 }

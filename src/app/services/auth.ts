@@ -7,6 +7,7 @@ import { CREDENCIALES, Credencial } from '../data/credenciales';
 import { inject } from '@angular/core';
 import { UsuarioService } from './usuario';
 import { RegistroRequest } from '../models/registro-request';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -19,25 +20,27 @@ export class AuthService {
 
   private usuarioService = inject(UsuarioService);
 
+  private http = inject(HttpClient);
+
   login(datos: LoginRequest): Observable<Usuario> {
     const correo = datos.correo.trim().toLowerCase();
 
-    const credencial = this.credenciales.find(
-      c => c.correo.toLowerCase() === correo &&
-        c.password === datos.password
-    );
+    return this.http.post(
+      '/api/usuarios/login',
+      {
+        correo,
+        password: datos.password
+      },
+      { responseType: 'text' }
+    ).pipe(
+      switchMap(() => this.usuarioService.listar()),
+      map(usuarios => {
+        const usuario = usuarios.find(
+          item => item.correo.toLowerCase() === correo
+        );
 
-    if (!credencial) {
-      return throwError(() => new Error('Correo o contraseña incorrectos'));
-    }
-
-    return of(correo).pipe(
-      switchMap(correoValidado =>
-        this.usuarioService.buscarPorCorreo(correoValidado)
-      ),
-      map(usuario => {
         if (!usuario) {
-          throw new Error('Usuario no encontrado');
+          throw new Error('No fue posible recuperar los datos del usuario.');
         }
 
         this.usuarioActual = usuario;
@@ -69,18 +72,11 @@ export class AuthService {
     }
   }
 
-  registrar(datos: RegistroRequest): Observable<Usuario> {
-    return this.usuarioService.registrar(datos).pipe(
-      tap(usuario => {
-        this.credenciales.push({
-          correo: usuario.correo,
-          password: datos.password
-        });
 
-        this.guardarCredenciales();
-      })
-    );
+  registrar(datos: RegistroRequest): Observable<Usuario> {
+    return this.usuarioService.registrar(datos);
   }
+
 
   obtenerUsuarioActual(): Usuario | null {
     return this.usuarioActual;
@@ -114,36 +110,6 @@ export class AuthService {
     }
   }
 
-  verificarCorreo(correo: string): Observable<boolean> {
-    const correoNormalizado = correo.trim().toLowerCase();
-
-    const existe = this.credenciales.some(
-      credencial => credencial.correo.toLowerCase() === correoNormalizado
-    );
-
-    return of(existe);
-  }
-
-  recuperarPassword(
-    correo: string,
-    nuevaPassword: string
-  ): Observable<boolean> {
-    const correoNormalizado = correo.trim().toLowerCase();
-
-    const credencial = this.credenciales.find(
-      item => item.correo.toLowerCase() === correoNormalizado
-    );
-
-    if (!credencial) {
-      return of(false);
-    }
-
-    credencial.password = nuevaPassword;
-    this.guardarCredenciales();
-
-    return of(true);
-  }
-
   cambiarPassword(
     passwordActual: string,
     nuevaPassword: string
@@ -151,20 +117,6 @@ export class AuthService {
 
     if (!this.usuarioActual) {
       return throwError(() => new Error('Debes iniciar sesión.'));
-    }
-
-    const credencial = this.credenciales.find(
-      item =>
-        item.correo.toLowerCase() ===
-        this.usuarioActual!.correo.toLowerCase()
-    );
-
-    if (!credencial) {
-      return throwError(() => new Error('Credenciales no encontradas.'));
-    }
-
-    if (credencial.password !== passwordActual) {
-      return throwError(() => new Error('La contraseña actual es incorrecta.'));
     }
 
     if (passwordActual === nuevaPassword) {
@@ -186,26 +138,24 @@ export class AuthService {
       ));
     }
 
-    credencial.password = nuevaPassword;
-    this.guardarCredenciales();
+    const usuario = this.usuarioActual;
 
-    return of(true);
+    return this.http.post(
+      '/api/usuarios/login',
+      {
+        correo: usuario.correo,
+        password: passwordActual
+      },
+      { responseType: 'text' }
+    ).pipe(
+      switchMap(() =>
+        this.usuarioService.cambiarPassword(usuario.id, nuevaPassword)
+      ),
+      map(() => true)
+    );
   }
 
   actualizarSesion(usuarioActualizado: Usuario): void {
-    const correoAnterior = this.usuarioActual?.correo;
-
-    if (correoAnterior && correoAnterior !== usuarioActualizado.correo) {
-      const credencial = this.credenciales.find(
-        item => item.correo.toLowerCase() === correoAnterior.toLowerCase()
-      );
-
-      if (credencial) {
-        credencial.correo = usuarioActualizado.correo;
-        this.guardarCredenciales();
-      }
-    }
-
     this.usuarioActual = usuarioActualizado;
     this.guardarSesion();
   }

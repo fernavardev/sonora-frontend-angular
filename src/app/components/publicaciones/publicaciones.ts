@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 
 import { Publicacion } from '../../models/publicacion';
 import { Categoria } from '../../models/categoria';
@@ -21,6 +21,8 @@ export class Publicaciones implements OnInit {
   private usuarioService = inject(UsuarioService);
 
   private route = inject(ActivatedRoute);
+
+  private cdr = inject(ChangeDetectorRef);
 
   usuarios = new Map<number, string>();
 
@@ -72,9 +74,12 @@ export class Publicaciones implements OnInit {
       next: (publicaciones) => {
         this.publicaciones = publicaciones;
         this.filtrarPorCategoria(this.categoriaSeleccionada);
+
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.mensajeError = err.message;
+        this.cdr.markForCheck();
       }
     });
   }

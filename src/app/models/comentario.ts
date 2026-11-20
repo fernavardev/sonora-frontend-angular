@@ -1,4 +1,3 @@
-
 import { Publicacion } from './publicacion';
 
 export interface Comentario {
@@ -7,5 +6,4 @@ export interface Comentario {
   nicknameAutor: string;
   contenido: string;
   baneado: boolean;
-  usuarioId: number;
 }

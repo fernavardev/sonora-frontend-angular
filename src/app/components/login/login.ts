@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -15,6 +15,7 @@ export class Login {
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   datos: LoginRequest = {
     correo: '',
@@ -31,7 +32,13 @@ export class Login {
         this.router.navigate(['/publicaciones']);
       },
       error: (err) => {
-        this.error = err.message;
+        if (err.status === 401) {
+          this.error = 'Correo o contraseña incorrectos.';
+        } else {
+          this.error = 'No fue posible iniciar sesión. Inténtalo nuevamente.';
+        }
+
+        this.cdr.markForCheck();
       }
     });
   }

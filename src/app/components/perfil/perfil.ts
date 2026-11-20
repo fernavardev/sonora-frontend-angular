@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -12,6 +12,7 @@ import {
 import { AuthService } from '../../services/auth';
 import { UsuarioService } from '../../services/usuario';
 import { Sidebar } from '../sidebar/sidebar';
+import { switchMap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-perfil',
@@ -24,6 +25,7 @@ export class Perfil {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private usuarioService = inject(UsuarioService);
+  private cdr = inject(ChangeDetectorRef);
 
   usuario = this.authService.obtenerUsuarioActual();
 
@@ -84,22 +86,41 @@ export class Perfil {
 
     const valores = this.perfilForm.getRawValue();
 
-    this.usuarioService.actualizar(this.usuario.id, {
-      nombre: valores.nombre ?? '',
-      nickname: valores.nickname ?? '',
-      correo: valores.correo ?? ''
-    }).subscribe({
+    this.usuarioService.nicknameDisponible(
+      valores.nickname ?? '',
+      this.usuario.id
+    ).pipe(
+      switchMap(disponible => {
+        if (!disponible) {
+          return throwError(() => new Error(
+            'El nickname ya está en uso. Elige otro.'
+          ));
+        }
+
+        return this.usuarioService.actualizar(this.usuario!.id, {
+          nombre: valores.nombre ?? '',
+          nickname: valores.nickname ?? '',
+          correo: valores.correo ?? ''
+        });
+      })
+    ).subscribe({
       next: (usuarioActualizado) => {
         this.authService.actualizarSesion(usuarioActualizado);
         this.usuario = usuarioActualizado;
         this.mensajeExito = 'Perfil actualizado correctamente.';
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        this.mensajeError = err.message;
+        this.mensajeError = err.message ===
+          'El nickname ya está en uso. Elige otro.'
+          ? err.message
+          : err.error?.message ||
+          'No fue posible actualizar el perfil.';
+
+        this.cdr.markForCheck();
       }
     });
   }
-
 
   campoPasswordInvalido(nombreCampo: string): boolean {
     const control = this.passwordForm.get(nombreCampo);
@@ -129,9 +150,18 @@ export class Perfil {
       next: () => {
         this.mensajeExitoPassword = 'Contraseña actualizada correctamente.';
         this.passwordForm.reset();
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        this.mensajeErrorPassword = err.message;
+        this.mensajeErrorPassword = err.status === 401
+          ? 'La contraseña actual es incorrecta.'
+          : err.message === 'La nueva contraseña debe ser diferente a la actual.'
+            ? err.message
+            : err.message === 'La nueva contraseña no cumple los requisitos de seguridad.'
+              ? err.message
+              : 'No fue posible actualizar la contraseña.';
+
+        this.cdr.markForCheck();
       }
     });
   }

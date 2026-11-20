@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, forkJoin, map, switchMap, of } from 'rxjs';
 
 import { Comentario } from '../models/comentario';
 
@@ -8,92 +9,46 @@ import { Comentario } from '../models/comentario';
 })
 export class ComentarioService {
 
-  private comentarios: Comentario[] = this.cargarComentarios();
+  private http = inject(HttpClient);
+  private readonly apiUrl = '/api/comentarios';
 
   listarPorPublicacion(publicacionId: number): Observable<Comentario[]> {
-    return of(
-      this.comentarios.filter(
-        comentario => comentario.publicacion.id === publicacionId
-      )
+    return this.http.get<Comentario[]>(
+      `${this.apiUrl}/publicacion/${publicacionId}`
     );
   }
 
   crear(datos: Omit<Comentario, 'id'>): Observable<Comentario> {
-    const nuevoComentario: Comentario = {
-      ...datos,
-      id: Math.max(0, ...this.comentarios.map(c => c.id)) + 1
-    };
-
-    this.comentarios.push(nuevoComentario);
-    this.guardarComentarios();
-
-    return of(nuevoComentario);
+    return this.http.post<Comentario>(this.apiUrl, datos);
   }
 
   actualizar(
     id: number,
     datos: Partial<Comentario>
   ): Observable<Comentario> {
-    const indice = this.comentarios.findIndex(c => c.id === id);
-
-    if (indice === -1) {
-      return throwError(() => new Error('Comentario no encontrado.'));
-    }
-
-    const comentarioActualizado: Comentario = {
-      ...this.comentarios[indice],
-      ...datos,
-      id
-    };
-
-    this.comentarios[indice] = comentarioActualizado;
-    this.guardarComentarios();
-
-    return of(comentarioActualizado);
+    return this.http.put<Comentario>(
+      `${this.apiUrl}/${id}`,
+      datos
+    );
   }
 
   eliminar(id: number): Observable<void> {
-    const indice = this.comentarios.findIndex(c => c.id === id);
-
-    if (indice === -1) {
-      return throwError(() => new Error('Comentario no encontrado.'));
-    }
-
-    this.comentarios.splice(indice, 1);
-    this.guardarComentarios();
-
-    return of(undefined);
-  }
-
-  private cargarComentarios(): Comentario[] {
-    if (typeof localStorage === 'undefined') {
-      return [];
-    }
-
-    const guardados = localStorage.getItem('sonora_comentarios');
-
-    return guardados
-      ? JSON.parse(guardados) as Comentario[]
-      : [];
-  }
-
-  private guardarComentarios(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(
-        'sonora_comentarios',
-        JSON.stringify(this.comentarios)
-      );
-    }
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   eliminarPorPublicacion(publicacionId: number): Observable<void> {
-    this.comentarios = this.comentarios.filter(
-      comentario => comentario.publicacion.id !== publicacionId
+    return this.listarPorPublicacion(publicacionId).pipe(
+      switchMap(comentarios => {
+        if (comentarios.length === 0) {
+          return of(undefined);
+        }
+
+        return forkJoin(
+          comentarios.map(comentario => this.eliminar(comentario.id))
+        ).pipe(
+          map(() => undefined)
+        );
+      })
     );
-
-    this.guardarComentarios();
-
-    return of(undefined);
   }
-
 }

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -10,10 +10,14 @@ import {
 
 import { AuthService } from '../../services/auth';
 import { RegistroRequest } from '../../models/registro-request';
+import { UsuarioService } from '../../services/usuario';
+import { switchMap, throwError } from 'rxjs';
+import { RouterLink } from '@angular/router';
+
 
 @Component({
   selector: 'app-registro',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './registro.html',
   styleUrl: './registro.css'
 })
@@ -21,6 +25,8 @@ export class Registro {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
+  private usuarioService = inject(UsuarioService);
 
   enviado = false;
   registroExitoso = false;
@@ -78,14 +84,32 @@ export class Registro {
       rol: 'USUARIO'
     };
 
-    this.authService.registrar(datos).subscribe({
+    this.usuarioService.nicknameDisponible(datos.nickname).pipe(
+      switchMap(disponible => {
+        if (!disponible) {
+          return throwError(() => new Error(
+            'El nickname ya está en uso. Elige otro.'
+          ));
+        }
+
+        return this.authService.registrar(datos);
+      })
+    ).subscribe({
       next: () => {
         this.registroExitoso = true;
         this.registroForm.reset();
         this.enviado = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        this.mensajeError = err.message;
+        this.mensajeError = err.message ===
+          'El nickname ya está en uso. Elige otro.'
+          ? err.message
+          : err.status === 409
+            ? 'El correo ya está registrado.'
+            : 'No fue posible registrar el usuario.';
+
+        this.cdr.markForCheck();
       }
     });
   }

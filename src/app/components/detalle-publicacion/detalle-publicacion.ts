@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Publicacion } from '../../models/publicacion';
@@ -25,6 +25,7 @@ export class DetallePublicacion implements OnInit {
   private comentarioService = inject(ComentarioService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   publicacion: Publicacion | null = null;
   nicknameAutor = '';
@@ -44,6 +45,7 @@ export class DetallePublicacion implements OnInit {
     contenido: ['', [Validators.required, Validators.minLength(2)]]
   });
 
+
   ngOnInit(): void {
     this.usuarioActual = this.authService.obtenerUsuarioActual();
 
@@ -58,26 +60,33 @@ export class DetallePublicacion implements OnInit {
       next: (publicacion) => {
         if (!publicacion || publicacion.baneado) {
           this.mensajeError = 'Publicación no encontrada.';
+          this.cdr.markForCheck();
           return;
         }
 
         this.publicacion = publicacion;
         this.cargarComentarios(publicacion.id);
 
+        this.cdr.markForCheck();
+
         this.usuarioService.buscarPorId(publicacion.usuarioId).subscribe({
           next: (usuario) => {
             this.nicknameAutor = usuario?.nickname ?? 'Usuario desconocido';
+            this.cdr.markForCheck();
           },
           error: () => {
             this.nicknameAutor = 'Usuario desconocido';
+            this.cdr.markForCheck();
           }
         });
       },
       error: () => {
         this.mensajeError = 'No fue posible cargar la publicación.';
+        this.cdr.markForCheck();
       }
     });
   }
+
 
   volver(): void {
     this.router.navigate(['/publicaciones']);
@@ -89,11 +98,14 @@ export class DetallePublicacion implements OnInit {
         this.comentarios = comentarios.filter(
           comentario => !comentario.baneado
         );
+
         this.mensajeErrorComentarios = '';
+        this.cdr.markForCheck();
       },
       error: () => {
         this.mensajeErrorComentarios =
           'No fue posible cargar los comentarios.';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -129,7 +141,6 @@ export class DetallePublicacion implements OnInit {
 
     this.comentarioService.crear({
       publicacion: this.publicacion,
-      usuarioId: usuario.id,
       nicknameAutor: usuario.nickname,
       contenido,
       baneado: false
@@ -151,11 +162,14 @@ export class DetallePublicacion implements OnInit {
       return false;
     }
 
-    const esAutor = comentario.usuarioId === this.usuarioActual.id;
+    const esAutor =
+      comentario.nicknameAutor === this.usuarioActual.nickname;
+
     const esAdministrador = this.usuarioActual.rol === 'ADMIN';
 
     return esAutor || esAdministrador;
   }
+
   iniciarEdicionComentario(comentario: Comentario): void {
     if (!this.puedeAdministrarComentario(comentario)) {
       return;
@@ -195,6 +209,7 @@ export class DetallePublicacion implements OnInit {
     }
 
     this.comentarioService.actualizar(comentario.id, {
+      ...comentario,
       contenido
     }).subscribe({
       next: () => {
