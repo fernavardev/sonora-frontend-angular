@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError, switchMap, map } from 'rxjs';
+import { Observable, switchMap, map } from 'rxjs';
 
 import { Usuario } from '../models/usuario';
-import { USUARIOS } from '../data/usuarios';
 import { RegistroRequest } from '../models/registro-request';
 import { HttpClient } from '@angular/common/http';
 
@@ -15,8 +14,6 @@ export class UsuarioService {
 
   constructor(private http: HttpClient) { }
 
-  private usuarios: Usuario[] = this.cargarUsuarios();
-
   listar(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(this.apiUrl);
   }
@@ -24,15 +21,6 @@ export class UsuarioService {
   buscarPorId(id: number): Observable<Usuario | undefined> {
     return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
   }
-
-  buscarPorCorreo(correo: string): Observable<Usuario | undefined> {
-    return of(
-      this.usuarios.find(
-        usuario => usuario.correo.toLowerCase() === correo.toLowerCase()
-      )
-    );
-  }
-
 
   registrar(datos: RegistroRequest): Observable<Usuario> {
     return this.http.post<Usuario>(this.apiUrl, {
@@ -73,22 +61,6 @@ export class UsuarioService {
         });
       })
     );
-  }
-
-  private cargarUsuarios(): Usuario[] {
-    if (typeof localStorage === 'undefined') {
-      return [...USUARIOS];
-    }
-
-    const guardados = localStorage.getItem('sonora_usuarios');
-
-    return guardados ? JSON.parse(guardados) as Usuario[] : [...USUARIOS];
-  }
-
-  private guardarUsuarios(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('sonora_usuarios', JSON.stringify(this.usuarios));
-    }
   }
 
   nicknameDisponible(

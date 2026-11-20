@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError, switchMap, map, tap } from 'rxjs';
+import { Observable, throwError, switchMap, map } from 'rxjs';
 import { Usuario } from '../models/usuario';
 import { LoginRequest } from '../models/login-request';
-import { USUARIOS } from '../data/usuarios';
-import { CREDENCIALES, Credencial } from '../data/credenciales';
 import { inject } from '@angular/core';
 import { UsuarioService } from './usuario';
 import { RegistroRequest } from '../models/registro-request';
@@ -13,8 +11,6 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class AuthService {
-
-  private credenciales: Credencial[] = this.cargarCredenciales();
 
   private usuarioActual: Usuario | null = this.cargarSesion();
 
@@ -50,28 +46,6 @@ export class AuthService {
       })
     );
   }
-
-  private cargarCredenciales(): Credencial[] {
-    if (typeof localStorage === 'undefined') {
-      return [...CREDENCIALES];
-    }
-
-    const guardadas = localStorage.getItem('sonora_credenciales');
-
-    return guardadas
-      ? JSON.parse(guardadas) as Credencial[]
-      : [...CREDENCIALES];
-  }
-
-  private guardarCredenciales(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(
-        'sonora_credenciales',
-        JSON.stringify(this.credenciales)
-      );
-    }
-  }
-
 
   registrar(datos: RegistroRequest): Observable<Usuario> {
     return this.usuarioService.registrar(datos);

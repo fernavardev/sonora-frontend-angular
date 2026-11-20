@@ -1,16 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { Publicacion } from '../models/publicacion';
-import { PUBLICACIONES } from '../data/publicaciones';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PublicacionService {
-
-  private publicaciones: Publicacion[] = this.cargarPublicaciones();
 
   private readonly apiUrl = '/api/publicaciones';
 
@@ -49,24 +46,4 @@ export class PublicacionService {
     );
   }
 
-  private cargarPublicaciones(): Publicacion[] {
-    if (typeof localStorage === 'undefined') {
-      return [...PUBLICACIONES];
-    }
-
-    const guardadas = localStorage.getItem('sonora_publicaciones');
-
-    return guardadas
-      ? JSON.parse(guardadas) as Publicacion[]
-      : [...PUBLICACIONES];
-  }
-
-  private guardarPublicaciones(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(
-        'sonora_publicaciones',
-        JSON.stringify(this.publicaciones)
-      );
-    }
-  }
 }

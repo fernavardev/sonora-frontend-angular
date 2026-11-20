@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { PublicacionService } from '../../services/publicacion';
 import { Categoria } from '../../models/categoria';
-import { CATEGORIAS } from '../../data/categorias';
+import { CategoriaService } from '../../services/categoria';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { Sidebar } from '../sidebar/sidebar';
@@ -29,8 +29,9 @@ export class CrearPublicacion implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private platformId = inject(PLATFORM_ID);
+  private categoriaService = inject(CategoriaService);
 
-  categorias: Categoria[] = CATEGORIAS;
+  categorias: Categoria[] = [];
   mensajeError = '';
 
   publicacionForm = this.fb.group({
@@ -43,10 +44,18 @@ export class CrearPublicacion implements OnInit {
   publicacionId: number | null = null;
 
   ngOnInit(): void {
-
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
+
+    this.categoriaService.listar().subscribe({
+      next: (categorias) => {
+        this.categorias = categorias;
+      },
+      error: () => {
+        this.mensajeError = 'No fue posible cargar las categorías.';
+      }
+    });
 
     const idParametro = this.route.snapshot.paramMap.get('id');
 
