@@ -223,7 +223,7 @@ Resources:
               listen 80 default_server;
               server_name _;
 
-              location /usuarios {
+              location /api/usuarios {
                   proxy_pass http://127.0.0.1:8080;
                   proxy_set_header Host $host;
                   proxy_set_header X-Real-IP $remote_addr;
@@ -231,7 +231,7 @@ Resources:
                   proxy_set_header X-Forwarded-Proto $scheme;
               }
 
-              location /publicaciones {
+              location /api/publicaciones {
                   proxy_pass http://127.0.0.1:8081;
                   proxy_set_header Host $host;
                   proxy_set_header X-Real-IP $remote_addr;
@@ -239,7 +239,7 @@ Resources:
                   proxy_set_header X-Forwarded-Proto $scheme;
               }
 
-              location /categorias {
+              location /api/categorias {
                   proxy_pass http://127.0.0.1:8081;
                   proxy_set_header Host $host;
                   proxy_set_header X-Real-IP $remote_addr;
@@ -247,7 +247,7 @@ Resources:
                   proxy_set_header X-Forwarded-Proto $scheme;
               }
 
-              location /comentarios {
+              location /api/comentarios {
                   proxy_pass http://127.0.0.1:8081;
                   proxy_set_header Host $host;
                   proxy_set_header X-Real-IP $remote_addr;
